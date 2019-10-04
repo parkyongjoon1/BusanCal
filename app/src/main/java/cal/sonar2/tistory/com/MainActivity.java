@@ -16,7 +16,7 @@ import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.calendar.CalendarScopes;
 
 import com.google.api.services.calendar.model.*;
- 
+
 import android.Manifest;
 import android.accounts.AccountManager;
 import android.app.Activity;
@@ -929,7 +929,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 mL5.removeView(mDate[5][6]);
                 mL5.addView(textClock);
             }
-            else { //다음달 표시 일수가 없으면, 즉, 빈칸이 없으면 둘째 줄에 시계표시
+            else { //다음달 표시 일수가 없으면, 즉, 빈칸이 없으면 둘째 줄에 시계표시 ....
                 mL1.removeView(mDate[1][0]);
                 mL1.addView(textClock, 0);
             }
