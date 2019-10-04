@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="1dp"
+    android:paddingLeft="1dp"
+    android:paddingRight="1dp"
+    android:paddingTop="1dp"
+    android:orientation="vertical"
+    android:weightSum="60"
+    android:background="#666"
+    tools:context=".MainActivity">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="70">
+        <TextView
+            android:id="@+id/title_sun"
+            android:clickable="true"
+            android:onClick="perform_action"
+            android:layout_width="10dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:textAlignment="center"
+            android:background="@drawable/yoil_head"
+            style="@style/calHTextSun"
+            android:text="@string/sunday" />
+        <TextView
+            android:id="@+id/title_mon"
+            android:layout_width="10dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:textAlignment="center"
+            android:background="@drawable/yoil_head"
+            style="@style/calHTextMonfri"
+            android:text="@string/monday" />
+        <TextView
+            android:id="@+id/title_tue"
+            android:layout_width="10dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:textAlignment="center"
+            android:background="@drawable/yoil_head"
+            style="@style/calHTextMonfri"
+            android:text="@string/tuesday" />
+        <TextView
+            android:id="@+id/title_wed"
+            android:layout_width="10dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:textAlignment="center"
+            android:background="@drawable/yoil_head"
+            style="@style/calHTextMonfri"
+            android:text="@string/wednesday" />
+        <TextView
+            android:id="@+id/title_thu"
+            android:layout_width="10dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:textAlignment="center"
+            android:background="@drawable/yoil_head"
+            style="@style/calHTextMonfri"
+            android:text="@string/thursday" />
+        <TextView
+            android:id="@+id/title_fri"
+            android:layout_width="10dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:textAlignment="center"
+            android:background="@drawable/yoil_head"
+            style="@style/calHTextMonfri"
+            android:text="@string/friday" />
+        <TextView
+            android:id="@+id/title_sat"
+            android:layout_width="10dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:textAlignment="center"
+            android:background="@drawable/yoil_head"
+            style="@style/calHTextSat"
+            android:text="@string/saturday" />
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/ll0"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:orientation="horizontal"
+        android:layout_weight="10"
+        android:weightSum="70">
+        <TextView
+            android:id="@+id/d00"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="50"
+            android:gravity="center"
+            android:background="@drawable/yoil_date"
+            style="@style/calTextTitle" />
+
+        <TextView
+            android:id="@+id/d05"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date" />
+        <TextView
+            android:id="@+id/d06"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date"
+             />
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/ll1"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:orientation="horizontal"
+        android:layout_weight="10"
+        android:weightSum="70">
+        <TextView
+            android:id="@+id/d10"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date"
+            android:text="" />
+        <TextView
+            android:id="@+id/d11"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date"
+            android:text=""/>
+        <TextView
+            android:id="@+id/d12"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date" />
+        <TextView
+            android:id="@+id/d13"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date" />
+        <TextView
+            android:id="@+id/d14"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date" />
+        <TextView
+            android:id="@+id/d15"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date" />
+        <TextView
+            android:id="@+id/d16"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:orientation="horizontal"
+        android:layout_weight="10"
+        android:weightSum="70">
+        <TextView
+            android:id="@+id/d20"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date"
+            android:text="" />
+        <TextView
+            android:id="@+id/d21"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date" />
+        <TextView
+            android:id="@+id/d22"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date" />
+        <TextView
+            android:id="@+id/d23"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date" />
+        <TextView
+            android:id="@+id/d24"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date" />
+        <TextView
+            android:id="@+id/d25"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date" />
+        <TextView
+            android:id="@+id/d26"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:orientation="horizontal"
+        android:layout_weight="10"
+        android:weightSum="70">
+        <TextView
+            android:id="@+id/d30"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date"
+            android:text="" />
+        <TextView
+            android:id="@+id/d31"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date" />
+        <TextView
+            android:id="@+id/d32"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date" />
+        <TextView
+            android:id="@+id/d33"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date" />
+        <TextView
+            android:id="@+id/d34"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date" />
+        <TextView
+            android:id="@+id/d35"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date" />
+        <TextView
+            android:id="@+id/d36"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:orientation="horizontal"
+        android:layout_weight="10"
+        android:weightSum="70">
+        <TextView
+            android:id="@+id/d40"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date"
+            android:text="" />
+        <TextView
+            android:id="@+id/d41"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date" />
+        <TextView
+            android:id="@+id/d42"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date" />
+        <TextView
+            android:id="@+id/d43"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date"
+            android:scrollHorizontally="true" />
+        <TextView
+            android:id="@+id/d44"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date" />
+        <TextView
+            android:id="@+id/d45"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date" />
+        <TextView
+            android:id="@+id/d46"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date" />
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/ll5"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:orientation="horizontal"
+        android:layout_weight="10"
+        android:weightSum="70">
+        <TextView
+            android:id="@+id/d50"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date"
+            android:text="" />
+        <TextView
+            android:id="@+id/d51"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date" />
+        <TextView
+            android:id="@+id/d52"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date" />
+        <TextView
+            android:id="@+id/d53"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date" />
+        <TextView
+            android:id="@+id/d54"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date" />
+        <TextView
+            android:id="@+id/d55"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date" />
+        <TextView
+            android:id="@+id/d56"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@drawable/yoil_date" />
+    </LinearLayout>
+</LinearLayout>
