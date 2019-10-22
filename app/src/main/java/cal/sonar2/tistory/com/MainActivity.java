@@ -33,7 +33,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
@@ -46,8 +45,7 @@ import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.Events;
 
-import java.io.IOException;
-import java.util.ArrayList;
+
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -60,6 +58,7 @@ import pub.devrel.easypermissions.EasyPermissions;
 import static cal.sonar2.tistory.com.R.color;
 import static cal.sonar2.tistory.com.R.id;
 import static cal.sonar2.tistory.com.R.layout;
+import static com.google.api.client.extensions.android.http.AndroidHttp.newCompatibleTransport;
 
 
 public class MainActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
@@ -227,7 +226,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     public void onDestroy() {
         super.onDestroy();
         mTimer.cancel();
-        //Toast.makeText(getApplicationContext(),"onDestroy()호출", Toast.LENGTH_SHORT).show();
     }
 
     public void perform_action(View v) {
@@ -256,11 +254,11 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         } else if (mCredential.getSelectedAccountName() == null) { // 유효한 Google 계정이 선택되어 있지 않은 경우
             chooseAccount();
         } else if (!isDeviceOnline()) {    // 인터넷을 사용할 수 없는 경우
-            mDate[1][0].setText("인터넷불가!");
+            Toast.makeText(getApplicationContext(),"인터넷연결안됨!!!",Toast.LENGTH_LONG).show();
         } else {
 
             // Google Calendar API 호출
-            new MakeRequestTask(this, mCredential).execute();
+            new MakeRequestTask(mCredential).execute();
         }
     }
 
@@ -319,32 +317,23 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
      */
     @AfterPermissionGranted(REQUEST_PERMISSION_GET_ACCOUNTS)
     private void chooseAccount() {
-        //Toast.makeText(getApplicationContext(),"chooseAccount", Toast.LENGTH_SHORT).show();
         // GET_ACCOUNTS 권한을 가지고 있다면
         if (EasyPermissions.hasPermissions(this, Manifest.permission.GET_ACCOUNTS)) {
             // SharedPreferences에서 저장된 Google 계정 이름을 가져온다.
             String accountName = getPreferences(Context.MODE_PRIVATE)
                     .getString(PREF_ACCOUNT_NAME, null);
-            //Toast.makeText(getApplicationContext(),accountName, Toast.LENGTH_SHORT).show();
             if (accountName != null) {
-
                 // 선택된 구글 계정 이름으로 설정한다.
                 mCredential.setSelectedAccountName(accountName);
                 getResultsFromApi();
             } else {
-                //Toast.makeText(getApplicationContext(),"else", Toast.LENGTH_SHORT).show();
-
                 // 사용자가 구글 계정을 선택할 수 있는 다이얼로그를 보여준다.
                 startActivityForResult(
                         mCredential.newChooseAccountIntent(),
                         REQUEST_ACCOUNT_PICKER);
             }
-
-
             // GET_ACCOUNTS 권한을 가지고 있지 않다면
         } else {
-
-            //Toast.makeText(getApplicationContext(),"ELSE", Toast.LENGTH_SHORT).show();
             // 사용자에게 GET_ACCOUNTS 권한을 요구하는 다이얼로그를 보여준다.(주소록 권한 요청함)
             EasyPermissions.requestPermissions(
                     this,
@@ -368,20 +357,14 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     ) {
         super.onActivityResult(requestCode, resultCode, data);
 
-
         switch (requestCode) {
-
             case REQUEST_GOOGLE_PLAY_SERVICES:
-
                 if (resultCode != RESULT_OK) {
-
-                    mDate[1][0].setText(" 앱을 실행시키려면 구글 플레이 서비스가 필요합니다 구글 플레이 서비스를 설치 후 다시 실행하세요.");
+                    Toast.makeText(getApplicationContext()," 앱을 실행시키려면 구글 플레이 서비스가 필요합니다 구글 플레이 서비스를 설치 후 다시 실행하세요.",Toast.LENGTH_LONG).show();
                 } else {
-
                     getResultsFromApi();
                 }
                 break;
-
 
             case REQUEST_ACCOUNT_PICKER:
                 if (resultCode == RESULT_OK && data != null && data.getExtras() != null) {
@@ -396,7 +379,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                     }
                 }
                 break;
-
 
             case REQUEST_AUTHORIZATION:
 
@@ -496,8 +478,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     /*
      * 비동기적으로 Google Calendar API 호출
      */
+    @SuppressLint("StaticFieldLeak")
     private class MakeRequestTask extends AsyncTask<Void, Void, String> {
-
         int cYear;
         int cMonth, pMonth, nMonth;
         int startRow;
@@ -516,12 +498,11 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
 
         private Exception mLastError = null;
-        ArrayList<String> eventStrings = new ArrayList<String>();
 
 
-        MakeRequestTask(MainActivity activity, GoogleAccountCredential credential) {
+        MakeRequestTask(GoogleAccountCredential credential) {
 
-            HttpTransport transport = AndroidHttp.newCompatibleTransport();
+            HttpTransport transport = newCompatibleTransport();
             JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
 
             mService = new com.google.api.services.calendar.Calendar
@@ -544,25 +525,21 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         protected String doInBackground(Void... params) {
             try {
                 if (mID == 3) {
-
-                    return getEvent();
+                    getEvent();
+                    return "OK";
                 }
-
-
             } catch (Exception e) {
                 mLastError = e;
                 cancel(true);
                 return null;
             }
-
             return null;
         }
-
 
         /*
          * CalendarTitle 이름의 캘린더에서 이벤트를 가져와 리턴
          */
-        private String getEvent() throws IOException {
+        private void getEvent() {
             int weeks;
             long i, is, ie;
             DateTime start, end;
@@ -573,9 +550,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             Calendar nCal = Calendar.getInstance();
             Calendar tCal = Calendar.getInstance();
             Calendar pCal = Calendar.getInstance(); //전월
-
-
-            //DateTime now = new DateTime(System.currentTimeMillis());
 
             today = mCal.get(Calendar.DATE);
             mCal.set(Calendar.DATE, 1);
@@ -605,11 +579,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 nextDays = 43 - (startDay + lastDay);
             }
 
-            //pCal.add(Calendar.DATE, -1*nextDays);
-            //preStartDay = pCal.get(Calendar.DATE);
             preEndDay = pCal.getActualMaximum(Calendar.DATE);
             preStartDay = preEndDay - preDays + 1;
-
 
             Log.d("startDay", String.valueOf(startDay));
             Log.d("lastDay", String.valueOf(lastDay));
@@ -619,14 +590,13 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             Log.d("preEndDay", String.valueOf(preEndDay));
             Log.d("nextDays", String.valueOf(nextDays));
 
-
             DateTime sdate = new DateTime(mCal.getTimeInMillis() - preDays * 86400000L);
             DateTime edate = new DateTime(nCal.getTimeInMillis() + nextDays * 86400000L);
 
             //String calIDbusan = getCalendarID("부산직업능력개발원");
-            String calIDbusan = "qpt36c54qi30i2buqnl8u2rff0@group.calendar.google.com";
-            String calIDhyu = "ct171m3icbujnimhtp1j97e47savh8a6@import.calendar.google.com";
-            String calIDmoon24 = "pd4kptmef56cqpc5mcs1g30lhc@group.calendar.google.com";
+            String calIDbusan = "qpt36c54qi30i2buqnl8u2rff0@group.calendar.google.com";  //부산직능원 공유캘린더
+            String calIDhyu = "ct171m3icbujnimhtp1j97e47savh8a6@import.calendar.google.com"; //공휴일
+            String calIDmoon24 = "pd4kptmef56cqpc5mcs1g30lhc@group.calendar.google.com";  //음력 및 24절기
 
 
             ///////////음력 및 24절기
@@ -860,8 +830,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
             }
 
-            eventStrings.add("데이터가져옴");
-            return eventStrings.size() + "개의 데이터를 가져왔습니다.";
+            //eventStrings.add("데이터가져옴");
+            //return eventStrings.size() + "개의 데이터를 가져왔습니다.";
         }
 
 
