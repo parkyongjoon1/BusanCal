@@ -26,6 +26,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextClock;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -507,7 +508,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         int preStartDay, preEndDay;
         int today;
 
-        String[][] sDat = new String[6][7];
+        String[][] sScheDat = new String[6][7];
+        String[][] sMoon24Dat = new String[6][7];
         boolean[] hyu = new boolean[32];
         boolean[] hyuPrev = new boolean[32];
         boolean[] hyuNext = new boolean[8];
@@ -622,146 +624,241 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             DateTime edate = new DateTime(nCal.getTimeInMillis() + nextDays * 86400000L);
 
             //String calIDbusan = getCalendarID("부산직업능력개발원");
-            //String calIDhyu = getCalendarID("대한민국의 휴일");
             String calIDbusan = "qpt36c54qi30i2buqnl8u2rff0@group.calendar.google.com";
             String calIDhyu = "ct171m3icbujnimhtp1j97e47savh8a6@import.calendar.google.com";
-
-            Log.d("calIDbusan", calIDbusan);
-
-            /////공휴일
-            //if (calIDhyu != null) {
-            events = mService.events().list(calIDhyu)
-                    .setMaxResults(50)
-                    .setTimeMin(sdate)
-                    .setTimeMax(edate)
-                    .setOrderBy("startTime")
-                    .setSingleEvents(true)
-                    .execute();
-            items = events.getItems();
+            String calIDmoon24 = "pd4kptmef56cqpc5mcs1g30lhc@group.calendar.google.com";
 
 
-            for (Event event2 : items) {
+            ///////////음력 및 24절기
+            try {
+                events = mService.events().list(calIDmoon24)
+                        .setMaxResults(50)
+                        .setTimeMin(sdate)
+                        .setTimeMax(edate)
+                        .setOrderBy("startTime")
+                        .setSingleEvents(true)
+                        .execute();
 
-                start = event2.getStart().getDate();
-                end = event2.getEnd().getDate();
-                if (start == null) {
-                    start = event2.getStart().getDateTime();
-                    end = event2.getEnd().getDateTime();
-                }
+                items = events.getItems();
 
-                tCal.setTimeInMillis(start.getValue());
-                is = tCal.get(Calendar.DATE) + 100L * tCal.get(Calendar.MONTH) + 10000L * tCal.get(Calendar.YEAR);
-                tCal.setTimeInMillis(end.getValue());
-                ie = tCal.get(Calendar.DATE) + 100L * tCal.get(Calendar.MONTH) + 10000L * tCal.get(Calendar.YEAR);
 
-                i = is;
-                do {
-                    //Log.d("i",String.valueOf(i));
-                    if (i < 1 + 100L * mCal.get(Calendar.MONTH) + 10000L * mCal.get(Calendar.YEAR)) {
-                        hyuPrev[(int) (i % 100)] = true;
-                    } else if (i > lastDay + 100L * mCal.get(Calendar.MONTH) + 10000L * mCal.get(Calendar.YEAR)) {
-                        row = startRow + ((startDay - 1) + lastDay + (int) (i % 100) - 1) / 7;
-                        col = ((startDay - 1) + lastDay + (int) (i % 100) - 1) % 7;
-                        //if (sDat[row][col] == null) sDat[row][col] = event2.getSummary();
-                        //else sDat[row][col] += ("\n"+event2.getSummary());
-                        hyuNext[(int) (i % 100)] = true;
-                        //Log.d("hyunext", String.valueOf(hyuNext[(int) (i % 100)]));
-                    } else {
-                        row = startRow + ((startDay - 1) + (int) (i % 100) - 1) / 7;
-                        col = ((startDay - 1) + (int) (i % 100) - 1) % 7;
-                        //if (sDat[row][col] == null) sDat[row][col] = event2.getSummary();
-                        //else sDat[row][col] += ("\n"+event2.getSummary());
-                        hyu[(int) (i % 100)] = true;
+                for (Event event3 : items) {
+
+                    start = event3.getStart().getDate();
+                    end = event3.getEnd().getDate();
+                    if (start == null) {
+                        start = event3.getStart().getDateTime();
+                        end = event3.getEnd().getDateTime();
                     }
-                    if (sDat[row][col] == null) sDat[row][col] = event2.getSummary();
-                    else sDat[row][col] += ("\n" + event2.getSummary());
-                    i++;
-                } while (i < ie);
-            }
-            //}
 
-            //부산직능원 공유달력
-            //if ( calIDbusan != null ) {
-            events = mService.events().list(calIDbusan)
-                    .setMaxResults(100)
-                    .setTimeMin(sdate)
-                    .setTimeMax(edate)
-                    .setOrderBy("startTime")
-                    .setSingleEvents(true)
-                    .execute();
-            items = events.getItems();
-
-
-            for (Event event : items) {
-
-                start = event.getStart().getDate();
-                end = event.getEnd().getDate();
-                if (start == null) { //시간이 있으면
-                    start = event.getStart().getDateTime();
-                    end = event.getEnd().getDateTime();
+                    tCal.setTimeInMillis(start.getValue());
+                    is = tCal.get(Calendar.DATE) + 100L * tCal.get(Calendar.MONTH) + 10000L * tCal.get(Calendar.YEAR);
                     tCal.setTimeInMillis(end.getValue());
                     ie = tCal.get(Calendar.DATE) + 100L * tCal.get(Calendar.MONTH) + 10000L * tCal.get(Calendar.YEAR);
-                } else { //날짜만 있으면...
-                    tCal.setTimeInMillis(end.getValue() - 86400000L);
-                    ie = tCal.get(Calendar.DATE) + 100L * tCal.get(Calendar.MONTH) + 10000L * tCal.get(Calendar.YEAR);
-                }
 
-                tCal.setTimeInMillis(start.getValue());
-                is = tCal.get(Calendar.DATE) + 100L * tCal.get(Calendar.MONTH) + 10000L * tCal.get(Calendar.YEAR);
-
-                //sDat에 넣어라
-                i = is;
-                do {
-                    //전달 스케쥴
-                    if (i < 1 + 100L * mCal.get(Calendar.MONTH) + 10000L * mCal.get(Calendar.YEAR)) {
-                        if ((i % 100 < preStartDay) || (preDays == 0)) { //전월 이전 스케쥴이거나 전월공간이 없으면 스킵
-                            Log.d("전월이전자료", event.getSummary());  //이 로그는 지우면 안됨.
+                    Log.d("is,ie", +is + "," + ie + ":");
+                    i = is;
+                    do {
+                        if (i < 1 + 100L * mCal.get(Calendar.MONTH) + 10000L * mCal.get(Calendar.YEAR)) { //전월
+                            row = startRow;
+                            if (row == 0) {
+                                col = (int) (i % 100) - preStartDay + 5;
+                            } else {
+                                col = (int) (i % 100) - preStartDay;
+                            }
                             if (i % 100 == preEndDay)
                                 i = 1 + 100L * mCal.get(Calendar.MONTH) + 10000L * mCal.get(Calendar.YEAR);
                             else
                                 i++;
-                            continue;
-                        }
-                        Log.d("전월i", String.valueOf(i));
-                        row = startRow;
-                        if (row == 0) {
-                            col = (int) (i % 100) - preStartDay + 5;
-                        } else {
-                            col = (int) (i % 100) - preStartDay;
-                        }
-                        if (i % 100 == preEndDay)
-                            i = 1 + 100L * mCal.get(Calendar.MONTH) + 10000L * mCal.get(Calendar.YEAR);
-                        else
+                        } else if (i > lastDay + 100L * mCal.get(Calendar.MONTH) + 10000L * mCal.get(Calendar.YEAR)) {
+                            row = startRow + ((startDay - 1) + lastDay + (int) (i % 100) - 1) / 7;
+                            col = ((startDay - 1) + lastDay + (int) (i % 100) - 1) % 7;
                             i++;
+                        } else { //현월
+                            row = startRow + ((startDay - 1) + (int) (i % 100) - 1) / 7;
+                            col = ((startDay - 1) + (int) (i % 100) - 1) % 7;
+                            if ((i % 100) == lastDay)
+                                i = 1 + 100L * nCal.get(Calendar.MONTH) + 10000L * nCal.get(Calendar.YEAR);
+                            else
+                                i++;
+                        }
 
-                    }
-                    //다음달 스케쥴
-                    else if (i > lastDay + 100L * mCal.get(Calendar.MONTH) + 10000L * mCal.get(Calendar.YEAR)) {
-                        if (i % 100 > nextDays) break; //다음달 이후 스케줄이면 바로 중단
-                        Log.d("후월i", String.valueOf(i));
-                        row = startRow + ((startDay - 1) + lastDay - 1 + (int) (i % 100) - 1) / 7;
-                        col = ((startDay - 1) + lastDay + (int) (i % 100) - 1) % 7;
-                        i++;
-                    }
-                    //현재달 스케쥴
-                    else {
-                        Log.d("현월i", String.valueOf(i));
-                        row = startRow + ((startDay - 1) + (int) (i % 100) - 1) / 7;
-                        col = ((startDay - 1) + (int) (i % 100) - 1) % 7;
-                        if ((i % 100) == lastDay)
-                            i = 1 + 100L * nCal.get(Calendar.MONTH) + 10000L * nCal.get(Calendar.YEAR);
-                        else
-                            i++;
-                    }
-                    Log.d("행", String.valueOf(row));
-                    Log.d("열", String.valueOf(col));
-                    if (sDat[row][col] == null) sDat[row][col] = event.getSummary();
-                    else sDat[row][col] += ("<br />\n" + event.getSummary());
+                        if (sMoon24Dat[row][col] == null) sMoon24Dat[row][col] = "";
+                        sMoon24Dat[row][col] += (" " + event3.getSummary());
+                        //sMoon24Dat[row][col] = sMoon24Dat[row][col].replace(" 음 ","음");
+                        Log.d("rwo,col,i", +row + "," + col + ":" + i + "-" + sMoon24Dat[row][col]);
 
-
-                } while (i <= ie);
+                    } while (i < ie);
+                }
             }
-            //}
+            catch (Exception e) {
+                Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+
+
+            /////공휴일
+            try {
+                //if (calIDhyu != null) {
+                events = mService.events().list(calIDhyu)
+                        .setMaxResults(50)
+                        .setTimeMin(sdate)
+                        .setTimeMax(edate)
+                        .setOrderBy("startTime")
+                        .setSingleEvents(true)
+                        .execute();
+                items = events.getItems();
+
+
+                for (Event event2 : items) {
+
+                    start = event2.getStart().getDate();
+                    end = event2.getEnd().getDate();
+                    if (start == null) {
+                        start = event2.getStart().getDateTime();
+                        end = event2.getEnd().getDateTime();
+                    }
+
+                    tCal.setTimeInMillis(start.getValue());
+                    is = tCal.get(Calendar.DATE) + 100L * tCal.get(Calendar.MONTH) + 10000L * tCal.get(Calendar.YEAR);
+                    tCal.setTimeInMillis(end.getValue());
+                    ie = tCal.get(Calendar.DATE) + 100L * tCal.get(Calendar.MONTH) + 10000L * tCal.get(Calendar.YEAR);
+
+                    i = is;
+                    do {
+                        Log.d("i", String.valueOf(i));
+                        //전월
+                        if (i < 1 + 100L * mCal.get(Calendar.MONTH) + 10000L * mCal.get(Calendar.YEAR)) {
+                            row = startRow;
+                            if (row == 0) {
+                                col = (int) (i % 100) - preStartDay + 5;
+                            } else {
+                                col = (int) (i % 100) - preStartDay;
+                            }
+                            hyuPrev[(int) (i % 100)] = true;
+                            if (i % 100 == preEndDay)
+                                i = 1 + 100L * mCal.get(Calendar.MONTH) + 10000L * mCal.get(Calendar.YEAR);
+                            else
+                                i++;
+                        } else if (i > lastDay + 100L * mCal.get(Calendar.MONTH) + 10000L * mCal.get(Calendar.YEAR)) {
+                            row = startRow + ((startDay - 1) + lastDay + (int) (i % 100) - 1) / 7;
+                            col = ((startDay - 1) + lastDay + (int) (i % 100) - 1) % 7;
+                            //if (sScheDat[row][col] == null) sScheDat[row][col] = event2.getSummary();
+                            //else sScheDat[row][col] += ("\n"+event2.getSummary());
+                            hyuNext[(int) (i % 100)] = true;
+                            //Log.d("hyunext", String.valueOf(hyuNext[(int) (i % 100)]));
+                            i++;
+                        } else { //현월
+                            row = startRow + ((startDay - 1) + (int) (i % 100) - 1) / 7;
+                            col = ((startDay - 1) + (int) (i % 100) - 1) % 7;
+                            //if (sScheDat[row][col] == null) sScheDat[row][col] = event2.getSummary();
+                            //else sScheDat[row][col] += ("\n"+event2.getSummary());
+                            hyu[(int) (i % 100)] = true;
+                            if ((i % 100) == lastDay)
+                                i = 1 + 100L * nCal.get(Calendar.MONTH) + 10000L * nCal.get(Calendar.YEAR);
+                            else
+                                i++;
+                        }
+                        if (sScheDat[row][col] == null) sScheDat[row][col] = event2.getSummary();
+                        else sScheDat[row][col] += ("\n" + event2.getSummary());
+                        Log.d("공휴일" + row + "," + col, sScheDat[row][col]);
+                    } while (i < ie);
+                }
+                //}
+            }
+            catch (Exception e) {
+                Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+
+
+
+            //부산직능원 공유달력
+            try {
+                //if ( calIDbusan != null ) {
+                events = mService.events().list(calIDbusan)
+                        .setMaxResults(100)
+                        .setTimeMin(sdate)
+                        .setTimeMax(edate)
+                        .setOrderBy("startTime")
+                        .setSingleEvents(true)
+                        .execute();
+                items = events.getItems();
+
+
+                for (Event event : items) {
+
+                    start = event.getStart().getDate();
+                    end = event.getEnd().getDate();
+                    if (start == null) { //시간이 있으면
+                        start = event.getStart().getDateTime();
+                        end = event.getEnd().getDateTime();
+                        tCal.setTimeInMillis(end.getValue());
+                        ie = tCal.get(Calendar.DATE) + 100L * tCal.get(Calendar.MONTH) + 10000L * tCal.get(Calendar.YEAR);
+                    } else { //날짜만 있으면...
+                        tCal.setTimeInMillis(end.getValue() - 86400000L);
+                        ie = tCal.get(Calendar.DATE) + 100L * tCal.get(Calendar.MONTH) + 10000L * tCal.get(Calendar.YEAR);
+                    }
+
+                    tCal.setTimeInMillis(start.getValue());
+                    is = tCal.get(Calendar.DATE) + 100L * tCal.get(Calendar.MONTH) + 10000L * tCal.get(Calendar.YEAR);
+
+                    //sScheDat에 넣어라
+                    i = is;
+                    do {
+                        //전달 스케쥴
+                        if (i < 1 + 100L * mCal.get(Calendar.MONTH) + 10000L * mCal.get(Calendar.YEAR)) {
+                            if ((i % 100 < preStartDay) || (preDays == 0)) { //전월 이전 스케쥴이거나 전월공간이 없으면 스킵
+                                Log.d("전월이전자료", event.getSummary());  //이 로그는 지우면 안됨.
+                                if (i % 100 == preEndDay)
+                                    i = 1 + 100L * mCal.get(Calendar.MONTH) + 10000L * mCal.get(Calendar.YEAR);
+                                else
+                                    i++;
+                                continue;
+                            }
+                            Log.d("전월i", String.valueOf(i));
+                            row = startRow;
+                            if (row == 0) {
+                                col = (int) (i % 100) - preStartDay + 5;
+                            } else {
+                                col = (int) (i % 100) - preStartDay;
+                            }
+                            if (i % 100 == preEndDay)
+                                i = 1 + 100L * mCal.get(Calendar.MONTH) + 10000L * mCal.get(Calendar.YEAR);
+                            else
+                                i++;
+
+                        }
+                        //다음달 스케쥴
+                        else if (i > lastDay + 100L * mCal.get(Calendar.MONTH) + 10000L * mCal.get(Calendar.YEAR)) {
+                            if (i % 100 > nextDays) break; //다음달 이후 스케줄이면 바로 중단
+                            Log.d("후월i", String.valueOf(i));
+                            row = startRow + ((startDay - 1) + lastDay - 1 + (int) (i % 100) - 1) / 7;
+                            col = ((startDay - 1) + lastDay + (int) (i % 100) - 1) % 7;
+                            i++;
+                        }
+                        //현재달 스케쥴
+                        else {
+                            Log.d("현월i", String.valueOf(i));
+                            row = startRow + ((startDay - 1) + (int) (i % 100) - 1) / 7;
+                            col = ((startDay - 1) + (int) (i % 100) - 1) % 7;
+                            if ((i % 100) == lastDay)
+                                i = 1 + 100L * nCal.get(Calendar.MONTH) + 10000L * nCal.get(Calendar.YEAR);
+                            else
+                                i++;
+                        }
+                        Log.d("행", String.valueOf(row));
+                        Log.d("열", String.valueOf(col));
+                        if (sScheDat[row][col] == null) sScheDat[row][col] = event.getSummary();
+                        else sScheDat[row][col] += ("<br />\n" + event.getSummary());
+                        Log.d("부산일정" + row + "/" + col, sScheDat[row][col]);
+
+
+                    } while (i <= ie);
+                }
+                //}
+            }
+            catch (Exception e) {
+                Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+            }
 
             eventStrings.add("데이터가져옴");
             return eventStrings.size() + "개의 데이터를 가져왔습니다.";
@@ -771,6 +868,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         @SuppressLint("SetTextI18n")
         @Override
         protected void onPostExecute(String output) {
+            Log.d("단계:","표시하기");
 
             //mProgress.hide();
             ((TextView) findViewById(id.title_sun)).setTextColor(Color.rgb(255, 0, 0));
@@ -792,10 +890,12 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 } else {
                     col = i - preStartDay;
                 }
-                if (sDat[row][col] == null)
-                    mDate[row][col].setText(" " + pMonth + "/" + i);
-                else
-                    mDate[row][col].setText(" " + pMonth + "/" + i + "\n" + sDat[row][col]);
+
+                if (sScheDat[row][col] == null) sScheDat[row][col]="";
+                if (sMoon24Dat[row][col] == null) sMoon24Dat[row][col]="";
+                //else sMoon24Dat[row][col]= "(" + sMoon24Dat[row][col] + ")";
+
+                mDate[row][col].setText(" " + pMonth + "/" + i + sMoon24Dat[row][col] + "\n" + sScheDat[row][col].replace("<br />",""));
                 if (hyuPrev[i]) {
                     mDate[row][col].setTextColor(getResources().getColor(R.color.calTextSun));
                 } else {
@@ -816,10 +916,12 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             for (int i = 1; i <= lastDay; i++) {  //현재달
                 row = startRow + ((startDay - 1) + i - 1) / 7;
                 col = ((startDay - 1) + i - 1) % 7;
-                if (sDat[row][col] == null)
-                    mDate[row][col].setText(Html.fromHtml("<u><b><big>&nbsp;" + i + "&nbsp;</big></b></u><br />"));
-                else
-                    mDate[row][col].setText(Html.fromHtml("<u><b><big>&nbsp;" + i + "&nbsp;</big></b></u><br />\n" + sDat[row][col]));
+
+                if (sScheDat[row][col] == null) sScheDat[row][col]="";
+                if (sMoon24Dat[row][col] == null) sMoon24Dat[row][col]="";
+                //else sMoon24Dat[row][col]= "(" + sMoon24Dat[row][col] + ")";
+
+                mDate[row][col].setText(Html.fromHtml("<u><b><big>&nbsp;" + i + "&nbsp;</big></b></u><small>" + sMoon24Dat[row][col] + "</small><br />\n" + sScheDat[row][col]));
                 if (hyu[i]) {
                     mDate[row][col].setTextColor(getResources().getColor(R.color.calTextSun));
                 } else {
@@ -849,11 +951,13 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 //Log.d("이후",String.valueOf(i));
                 row = startRow + ((startDay - 1) + lastDay + i - 1) / 7;
                 col = ((startDay - 1) + lastDay + i - 1) % 7;
-                if (sDat[row][col] == null) {
-                    mDate[row][col].setText(" " + nMonth + "/" + i);
-                } else {
-                    mDate[row][col].setText(" " + nMonth + "/" + i + "\n" + sDat[row][col]);
-                }
+
+                if (sScheDat[row][col] == null) sScheDat[row][col]="";
+                if (sMoon24Dat[row][col] == null) sMoon24Dat[row][col]="";
+                //else sMoon24Dat[row][col]= "(" + sMoon24Dat[row][col] + ")";
+
+                mDate[row][col].setText(" " + nMonth + "/" + i + sMoon24Dat[row][col] + "\n" + sScheDat[row][col]);
+
                 if (hyuNext[i]) {
                     mDate[row][col].setTextColor(getResources().getColor(R.color.calTextSun));
                 } else {
