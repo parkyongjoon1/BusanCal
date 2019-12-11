@@ -553,7 +553,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
             today = mCal.get(Calendar.DATE);
             mCal.set(Calendar.DATE, 1);
-            //mCal.set(Calendar.MONTH, 11-1); /////////////////////////////////////////////////////////////////////////////////////////////////////////////for test
+            //mCal.set(2020,4-1,1); /////////////////////////////////////////////////////////////////////////////////////////////////////////////for test
             nCal.set(mCal.get(Calendar.YEAR), mCal.get(Calendar.MONTH), 1, 0, 0, 0);  //1일
             pCal.set(mCal.get(Calendar.YEAR), mCal.get(Calendar.MONTH), 1, 0, 0, 0);  //1일
             nCal.add(Calendar.MONTH, 1);
@@ -595,7 +595,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
             //String calIDbusan = getCalendarID("부산직업능력개발원");
             String calIDbusan = "qpt36c54qi30i2buqnl8u2rff0@group.calendar.google.com";  //부산직능원 공유캘린더
-            String calIDhyu = "ct171m3icbujnimhtp1j97e47savh8a6@import.calendar.google.com"; //공휴일
+            String calIDhyu = "ltm0jrlsamv8mlhrg0bpcgu6ps@group.calendar.google.com"; //달력기준 공휴일
             String calIDmoon24 = "pd4kptmef56cqpc5mcs1g30lhc@group.calendar.google.com";  //음력 및 24절기
 
 
@@ -696,8 +696,19 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                     i = is;
                     do {
                         Log.d("i", String.valueOf(i));
+                        Log.d("is", String.valueOf(is));
+                        Log.d("ie", String.valueOf(ie));
                         //전월
                         if (i < 1 + 100L * mCal.get(Calendar.MONTH) + 10000L * mCal.get(Calendar.YEAR)) {
+                            if ((i % 100 < preStartDay) || (preDays == 0)) { //전월 이전 스케쥴이거나 전월공간이 없으면 스킵
+                                Log.d("전월이전자료", event2.getSummary());  //이 로그는 지우면 안됨.
+                                if (i % 100 == preEndDay)
+                                    i = 1 + 100L * mCal.get(Calendar.MONTH) + 10000L * mCal.get(Calendar.YEAR);
+                                else
+                                    i++;
+                                continue;
+                            }
+                            Log.d("전월i", String.valueOf(i));
                             row = startRow;
                             if (row == 0) {
                                 col = (int) (i % 100) - preStartDay + 5;
@@ -705,10 +716,11 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                                 col = (int) (i % 100) - preStartDay;
                             }
                             hyuPrev[(int) (i % 100)] = true;
-                            if (i % 100 == preEndDay)
-                                i = 1 + 100L * mCal.get(Calendar.MONTH) + 10000L * mCal.get(Calendar.YEAR);
+                            if (i % 100 == preEndDay) //전월 말일이면
+                                i = 1 + 100L * mCal.get(Calendar.MONTH) + 10000L * mCal.get(Calendar.YEAR); //현월1일로 스킵
                             else
-                                i++;
+                                i++; //1일 증가
+                        //후월
                         } else if (i > lastDay + 100L * mCal.get(Calendar.MONTH) + 10000L * mCal.get(Calendar.YEAR)) {
                             row = startRow + ((startDay - 1) + lastDay + (int) (i % 100) - 1) / 7;
                             col = ((startDay - 1) + lastDay + (int) (i % 100) - 1) % 7;
@@ -717,6 +729,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                             hyuNext[(int) (i % 100)] = true;
                             //Log.d("hyunext", String.valueOf(hyuNext[(int) (i % 100)]));
                             i++;
+                        //현월
                         } else { //현월
                             row = startRow + ((startDay - 1) + (int) (i % 100) - 1) / 7;
                             col = ((startDay - 1) + (int) (i % 100) - 1) % 7;
@@ -829,17 +842,12 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             catch (Exception e) {
                 Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
             }
-
-            //eventStrings.add("데이터가져옴");
-            //return eventStrings.size() + "개의 데이터를 가져왔습니다.";
         }
 
 
         @SuppressLint("SetTextI18n")
         @Override
         protected void onPostExecute(String output) {
-            Log.d("단계:","표시하기");
-
             //mProgress.hide();
             ((TextView) findViewById(id.title_sun)).setTextColor(Color.rgb(255, 0, 0));
             //mStatusText.setText(output);
@@ -853,6 +861,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 mLmain.setWeightSum(60f);
             }
             mDate[0][0].setText(cYear + "년 " + cMonth + "월  일정표");
+            //커스텀 공휴일 처리(창립기념일)
+            if(cMonth==9) hyu[1] = true;  if(cMonth==8) hyuNext[1] = true;
+
             for (int i = preStartDay; i <= preEndDay; i++) {  //이전달
                 row = startRow;
                 if (row == 0) {

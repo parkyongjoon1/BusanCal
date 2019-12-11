@@ -11,7 +11,7 @@
     android:orientation="vertical"
     android:weightSum="60"
     android:background="#666"
-    tools:context=".MainActivity">
+    tools:context="cal.sonar2.tistory.com.MainActivity">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
