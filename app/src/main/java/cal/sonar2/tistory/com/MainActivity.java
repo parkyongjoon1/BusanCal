@@ -92,17 +92,12 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private LinearLayout mL1;
     private LinearLayout mLmain;
     private TextClock textClock;
-    private float dpSizeFactor;
+    //private float dpSizeFactor;
 
     static final int REQUEST_ACCOUNT_PICKER = 1000;
     static final int REQUEST_AUTHORIZATION = 1001;
     static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
     static final int REQUEST_PERMISSION_GET_ACCOUNTS = 1003;
-
-    //원장실 모니터 글자 크기
-    private int cDateSize;
-    private int nDateSize;
-
 
     private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String[] SCOPES = {CalendarScopes.CALENDAR};
@@ -111,12 +106,18 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     final String strKeyMoonCalID = "keyMoonCalID";
     final String strKeyUserCalID = "keyUserCalID";
     final String strKeyWeekSize = "keyWeekSize";
-    static private String SHARE_NAME = "SHARE_CAL";
+    final String strKeyTitleSize = "keyTitleSize";
+    final String strKeyCDateSize = "keyCDateSize";
+    final String strKeyNDateSize = "keyNDateSize";
+    final String strKeyClockSize = "keyClockSize";
     static SharedPreferences sharedPreferences = null;
 
     String calIDuser =  "";//"qpt36c54qi30i2buqnl8u2rff0@group.calendar.google.com";  //부산직능원 공유캘린더
     String calIDhyu = "";//"ltm0jrlsamv8mlhrg0bpcgu6ps@group.calendar.google.com"; //달력기준 공휴일
     String calIDmoon24 = "";//"pd4kptmef56cqpc5mcs1g30lhc@group.calendar.google.com";  //음력 및 24절기
+    float fWeekSize=10.0f, fTitleSize=10.0f;
+    float dpWidth,dpHeight;
+    private float cDateSize, nDateSize, clockSize;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,21 +139,13 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         display.getMetrics(outMetrics);
 
         float density = getResources().getDisplayMetrics().density;
-        float dpHeight = outMetrics.heightPixels / density;
-        float dpWidth = outMetrics.widthPixels / density;
+        dpHeight = outMetrics.heightPixels / density;
+        dpWidth = outMetrics.widthPixels / density;
 
-        dpSizeFactor = Math.min(dpWidth, dpHeight * 1866.66f / 1104.0f) / 1866.66f;
+        //dpSizeFactor = Math.min(dpWidth, dpHeight * 1866.66f / 1104.0f) / 1866.66f;
 
-        cDateSize = (int) (dpSizeFactor * 39.0f);
-        nDateSize = (int) (dpSizeFactor * 30.0f);
-
-        ((TextView) findViewById(id.title_sun)).setTextSize(dpSizeFactor * 50.0f);
-        ((TextView) findViewById(id.title_mon)).setTextSize(dpSizeFactor * 50.0f);
-        ((TextView) findViewById(id.title_tue)).setTextSize(dpSizeFactor * 50.0f);
-        ((TextView) findViewById(id.title_wed)).setTextSize(dpSizeFactor * 50.0f);
-        ((TextView) findViewById(id.title_thu)).setTextSize(dpSizeFactor * 50.0f);
-        ((TextView) findViewById(id.title_fri)).setTextSize(dpSizeFactor * 50.0f);
-        ((TextView) findViewById(id.title_sat)).setTextSize(dpSizeFactor * 50.0f);
+        //cDateSize = (int) (dpSizeFactor * 39.0f);
+        //nDateSize = (int) (dpSizeFactor * 30.0f);
 
         Log.d("눂이", String.valueOf(dpHeight));
 
@@ -206,9 +199,23 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         mDate[5][5] = findViewById(id.d55);
         mDate[5][6] = findViewById(id.d56);
 
+        String SHARE_NAME = "SHARE_CAL";
         sharedPreferences = getSharedPreferences(SHARE_NAME, MODE_PRIVATE);
 
         loadSchedule();
+
+        //요일 크기 조정
+        ((TextView) findViewById(id.title_sun)).setTextSize(fWeekSize);
+        ((TextView) findViewById(id.title_mon)).setTextSize(fWeekSize);
+        ((TextView) findViewById(id.title_tue)).setTextSize(fWeekSize);
+        ((TextView) findViewById(id.title_wed)).setTextSize(fWeekSize);
+        ((TextView) findViewById(id.title_thu)).setTextSize(fWeekSize);
+        ((TextView) findViewById(id.title_fri)).setTextSize(fWeekSize);
+        ((TextView) findViewById(id.title_sat)).setTextSize(fWeekSize);
+
+        //타이틀 크기 조정
+        ((TextView) findViewById(id.d00)).setTextSize(fTitleSize);
+
 
         mGetEventButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -220,7 +227,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 mGetEventButton.setEnabled(true);
             }
         });
-
 
         // Google Calendar API 사용하기 위해 필요한 인증 초기화( 자격 증명 credentials, 서비스 객체 )
         // OAuth 2.0를 사용하여 구글 계정 선택 및 인증하기 위한 준비
@@ -262,6 +268,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         finish();
     }
 
+    @SuppressLint("DefaultLocale")
     public void loadSchedule() {
         try {
             calIDhyu = sharedPreferences.getString(strKeyHyuCalID, "");
@@ -269,18 +276,26 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         catch (Exception e) {
             Log.d("휴일달력아이디불러오기에러",e.toString());
         }
+
         try {
             calIDmoon24 = sharedPreferences.getString(strKeyMoonCalID, "");
         }
         catch (Exception e) {
             Log.d("음력달력아이디불러오기에러",e.toString());
         }
+
         try {
             calIDuser = sharedPreferences.getString(strKeyUserCalID, "");
         }
         catch (Exception e) {
             Log.d("유저달력아이디불러오기에러",e.toString());
         }
+
+        fWeekSize = Float.parseFloat(sharedPreferences.getString(strKeyWeekSize, String.valueOf(Math.round(Math.min(dpWidth, dpHeight * 1866.66f / 1104.0f) / 1866.66f * 50.0f))));
+        fTitleSize = Float.parseFloat(sharedPreferences.getString(strKeyTitleSize, String.format("%d", Math.round(Math.min(dpWidth, dpHeight * 1866.66f / 1104.0f) / 1866.66f * 90.0f))));
+        cDateSize = Float.parseFloat(sharedPreferences.getString(strKeyCDateSize,String.format("%d", Math.round(Math.min(dpWidth, dpHeight * 1866.66f / 1104.0f) / 1866.66f * 39.0f))));
+        nDateSize = Float.parseFloat(sharedPreferences.getString(strKeyNDateSize,String.format("%d", Math.round(Math.min(dpWidth, dpHeight * 1866.66f / 1104.0f) / 1866.66f * 30.0f))));
+        clockSize= Float.parseFloat(sharedPreferences.getString(strKeyClockSize,String.format("%d", Math.round(Math.min(dpWidth, dpHeight * 1866.66f / 1104.0f) / 1866.66f * 100.0f))));
     }
 
 
@@ -300,7 +315,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
             acquireGooglePlayServices();
         } else if (mCredential.getSelectedAccountName() == null) { // 유효한 Google 계정이 선택되어 있지 않은 경우
-            Toast.makeText(getApplicationContext(), "유효한 구글 계정 아닙니다.",Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getApplicationContext(), "유효한 구글 계정 아닙니다.",Toast.LENGTH_SHORT).show();
             chooseAccount();
         } else if (!isDeviceOnline()) {    // 인터넷을 사용할 수 없는 경우
             Toast.makeText(getApplicationContext(),"인터넷연결안됨!!!",Toast.LENGTH_LONG).show();
@@ -1016,7 +1031,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             //여기부터 시계표시
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(1, ViewGroup.LayoutParams.MATCH_PARENT, 10);
             textClock.setLayoutParams(layoutParams);
-            textClock.setTextSize(dpSizeFactor * 100.0f);
+            textClock.setTextSize(clockSize);
             textClock.setFormat24Hour("HH:mm");
             textClock.setFormat12Hour("h:mm");
             textClock.setPadding(0, 0, 0, 0);

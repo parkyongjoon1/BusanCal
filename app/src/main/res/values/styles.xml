@@ -8,7 +8,6 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
     <style name="calTextTitle">
-        <item name="android:textSize">90dp</item>
         <item name="android:textColor">#ddd</item>
     </style>
 
