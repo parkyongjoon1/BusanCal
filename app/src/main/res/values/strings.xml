@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">부산직능원달력</string>
+    <string name="app_name">큰글자 일정표 달력</string>
     <string name="sunday">日</string>
     <string name="monday">月</string>
     <string name="tuesday">火</string>

@@ -1,6 +1,7 @@
 package cal.sonar2.tistory.com;
 
 import android.Manifest;
+import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
@@ -106,6 +107,17 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String[] SCOPES = {CalendarScopes.CALENDAR};
 
+    final String strKeyHyuCalID = "keyHyuCalID";
+    final String strKeyMoonCalID = "keyMoonCalID";
+    final String strKeyUserCalID = "keyUserCalID";
+    final String strKeyWeekSize = "keyWeekSize";
+    static private String SHARE_NAME = "SHARE_CAL";
+    static SharedPreferences sharedPreferences = null;
+
+    String calIDuser =  "";//"qpt36c54qi30i2buqnl8u2rff0@group.calendar.google.com";  //부산직능원 공유캘린더
+    String calIDhyu = "";//"ltm0jrlsamv8mlhrg0bpcgu6ps@group.calendar.google.com"; //달력기준 공휴일
+    String calIDmoon24 = "";//"pd4kptmef56cqpc5mcs1g30lhc@group.calendar.google.com";  //음력 및 24절기
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -115,7 +127,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
         //mAddCalendarButton = (Button) findViewById(R.id.button_main_add_calendar);
         //mAddEventButton = (Button) findViewById(R.id.button_main_add_event);
-        mGetEventButton = new Button(this); // findViewById(id.button_main_get_event);
+        //mGetEventButton = new Button(this); // findViewById(id.button_main_get_event);
+        mGetEventButton = new Button(this);
 
         //mStatusText = (TextView) findViewById(R.id.textview_main_status);
         //mResultText = (TextView) findViewById(R.id.textview_main_result);
@@ -193,6 +206,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         mDate[5][5] = findViewById(id.d55);
         mDate[5][6] = findViewById(id.d56);
 
+        sharedPreferences = getSharedPreferences(SHARE_NAME, MODE_PRIVATE);
+
+        loadSchedule();
 
         mGetEventButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -217,7 +233,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
         if (mTimer == null) {
             mTimer = new Timer();
-            mTimer.schedule(mTask, 1000L, 300000L);  //1초후 5분마다
+            mTimer.schedule(mTask, 1000L, 600000L);  //1초후 10분마다
         }
     }
 
@@ -228,11 +244,43 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         mTimer.cancel();
     }
 
+    @Override
+    public void onBackPressed() {
+        gotoSetting(findViewById(id.title_fri));
+    }
+
     public void perform_action(View v) {
         TextView tv = findViewById(R.id.title_sun);
         mID = 3;
         tv.setTextColor(Color.WHITE);
         getResultsFromApi();
+    }
+
+    public void gotoSetting(View view) {
+        Intent intent = new Intent(this, SettingActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    public void loadSchedule() {
+        try {
+            calIDhyu = sharedPreferences.getString(strKeyHyuCalID, "");
+        }
+        catch (Exception e) {
+            Log.d("휴일달력아이디불러오기에러",e.toString());
+        }
+        try {
+            calIDmoon24 = sharedPreferences.getString(strKeyMoonCalID, "");
+        }
+        catch (Exception e) {
+            Log.d("음력달력아이디불러오기에러",e.toString());
+        }
+        try {
+            calIDuser = sharedPreferences.getString(strKeyUserCalID, "");
+        }
+        catch (Exception e) {
+            Log.d("유저달력아이디불러오기에러",e.toString());
+        }
     }
 
 
@@ -252,6 +300,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
             acquireGooglePlayServices();
         } else if (mCredential.getSelectedAccountName() == null) { // 유효한 Google 계정이 선택되어 있지 않은 경우
+            Toast.makeText(getApplicationContext(), "유효한 구글 계정 아닙니다.",Toast.LENGTH_SHORT).show();
             chooseAccount();
         } else if (!isDeviceOnline()) {    // 인터넷을 사용할 수 없는 경우
             Toast.makeText(getApplicationContext(),"인터넷연결안됨!!!",Toast.LENGTH_LONG).show();
@@ -322,9 +371,11 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             // SharedPreferences에서 저장된 Google 계정 이름을 가져온다.
             String accountName = getPreferences(Context.MODE_PRIVATE)
                     .getString(PREF_ACCOUNT_NAME, null);
+            Toast.makeText(getApplicationContext(),accountName,Toast.LENGTH_SHORT).show();
             if (accountName != null) {
                 // 선택된 구글 계정 이름으로 설정한다.
-                mCredential.setSelectedAccountName(accountName);
+                //mCredential.setSelectedAccountName(accountName);
+                mCredential.setSelectedAccount(new Account(accountName,getPackageName()));
                 getResultsFromApi();
             } else {
                 // 사용자가 구글 계정을 선택할 수 있는 다이얼로그를 보여준다.
@@ -435,6 +486,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
         return (networkInfo != null && networkInfo.isConnected());
     }
+
 
 
     /*
@@ -553,6 +605,10 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
             today = mCal.get(Calendar.DATE);
             mCal.set(Calendar.DATE, 1);
+            mCal.set(Calendar.HOUR, 0);
+            mCal.set(Calendar.MINUTE, 0);
+            mCal.set(Calendar.SECOND, 0);
+            mCal.set(Calendar.MILLISECOND, 0);
             //mCal.set(2020,4-1,1); /////////////////////////////////////////////////////////////////////////////////////////////////////////////for test
             nCal.set(mCal.get(Calendar.YEAR), mCal.get(Calendar.MONTH), 1, 0, 0, 0);  //1일
             pCal.set(mCal.get(Calendar.YEAR), mCal.get(Calendar.MONTH), 1, 0, 0, 0);  //1일
@@ -591,12 +647,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             Log.d("nextDays", String.valueOf(nextDays));
 
             DateTime sdate = new DateTime(mCal.getTimeInMillis() - preDays * 86400000L);
-            DateTime edate = new DateTime(nCal.getTimeInMillis() + nextDays * 86400000L);
+            DateTime edate = new DateTime(nCal.getTimeInMillis() + nextDays * 86400000L-86400000L);
 
             //String calIDbusan = getCalendarID("부산직업능력개발원");
-            String calIDbusan = "qpt36c54qi30i2buqnl8u2rff0@group.calendar.google.com";  //부산직능원 공유캘린더
-            String calIDhyu = "ltm0jrlsamv8mlhrg0bpcgu6ps@group.calendar.google.com"; //달력기준 공휴일
-            String calIDmoon24 = "pd4kptmef56cqpc5mcs1g30lhc@group.calendar.google.com";  //음력 및 24절기
 
 
             ///////////음력 및 24절기
@@ -662,12 +715,15 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 }
             }
             catch (Exception e) {
-                Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                Log.d("음력불러오기에러",e.toString());
             }
 
 
             /////공휴일
+            Log.d("공유일Sdate",String.valueOf(sdate));
+            Log.d("공유일edate",String.valueOf(edate));
             try {
+                //Log.d("test","Test");
                 //if (calIDhyu != null) {
                 events = mService.events().list(calIDhyu)
                         .setMaxResults(50)
@@ -727,7 +783,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                             //if (sScheDat[row][col] == null) sScheDat[row][col] = event2.getSummary();
                             //else sScheDat[row][col] += ("\n"+event2.getSummary());
                             hyuNext[(int) (i % 100)] = true;
-                            //Log.d("hyunext", String.valueOf(hyuNext[(int) (i % 100)]));
+                            Log.d(String.valueOf(row), String.valueOf(col));
                             i++;
                         //현월
                         } else { //현월
@@ -749,15 +805,15 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 //}
             }
             catch (Exception e) {
-                Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                Log.d("공휴일불러오기에러",e.toString());
             }
 
 
-
             //부산직능원 공유달력
+            Log.d("공유스케쥴3","start");
             try {
                 //if ( calIDbusan != null ) {
-                events = mService.events().list(calIDbusan)
+                events = mService.events().list(calIDuser)
                         .setMaxResults(100)
                         .setTimeMin(sdate)
                         .setTimeMax(edate)
@@ -840,7 +896,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 //}
             }
             catch (Exception e) {
-                Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                Log.d("입력스케쥴불러오기에러",e.toString());
             }
         }
 
@@ -1009,7 +1065,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     final Handler handler = new Handler() {
         public void handleMessage(Message msg) {
             mGetEventButton.performClick();
-            Log.d("timer", "event");
+            Log.d("timer event", "event");
         }
     };
 

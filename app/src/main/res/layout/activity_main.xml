@@ -27,7 +27,8 @@
             android:textAlignment="center"
             android:background="@drawable/yoil_head"
             style="@style/calHTextSun"
-            android:text="@string/sunday" />
+            android:text="@string/sunday"
+            android:focusable="true" />
         <TextView
             android:id="@+id/title_mon"
             android:layout_width="10dp"
@@ -75,13 +76,16 @@
             android:text="@string/friday" />
         <TextView
             android:id="@+id/title_sat"
+            android:clickable="true"
             android:layout_width="10dp"
             android:layout_height="match_parent"
             android:layout_weight="10"
             android:textAlignment="center"
             android:background="@drawable/yoil_head"
             style="@style/calHTextSat"
-            android:text="@string/saturday" />
+            android:text="@string/saturday"
+            android:onClick="gotoSetting"
+            android:focusable="true" />
     </LinearLayout>
     <LinearLayout
         android:id="@+id/ll0"
