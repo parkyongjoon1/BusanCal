@@ -43,10 +43,13 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.CalendarList;
+import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.Events;
 
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -505,10 +508,10 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
 
     /*
-     * 캘린더 이름에 대응하는 캘린더 ID를 리턴
+     * 캘린더 ID를 가져오기
      */
-    /*
-    private String getCalendarID(String calendarTitle){
+
+    private void DebugCalendarID(){
 
         String id = null;
 
@@ -525,21 +528,15 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             }
             List<CalendarListEntry> items = calendarList.getItems();
 
-
             for (CalendarListEntry calendarListEntry : items) {
-
-                if ( calendarListEntry.getSummary().toString().equals(calendarTitle)) {
-
-                    id = calendarListEntry.getId().toString();
-                }
+                    Log.i("CalenderID",calendarListEntry.getId().toString());
             }
             pageToken = calendarList.getNextPageToken();
         } while (pageToken != null);
 
-        return id;
     }
 
-    */
+
 
 
     /*
@@ -612,6 +609,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             DateTime start, end;
             Events events;
             List<Event> items;
+
+            DebugCalendarID();
 
             Calendar mCal = Calendar.getInstance();
             Calendar nCal = Calendar.getInstance();
@@ -903,7 +902,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                         Log.d("열", String.valueOf(col));
                         if (sScheDat[row][col] == null) sScheDat[row][col] = event.getSummary();
                         else sScheDat[row][col] += ("<br />\n" + event.getSummary());
-                        Log.d("부산일정" + row + "/" + col, sScheDat[row][col]);
+                        Log.d("공유일정" + row + "/" + col, sScheDat[row][col]);
 
 
                     } while (i <= ie);
