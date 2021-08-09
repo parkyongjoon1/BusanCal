@@ -64,7 +64,6 @@ import static cal.sonar2.tistory.com.R.id;
 import static cal.sonar2.tistory.com.R.layout;
 import static com.google.api.client.extensions.android.http.AndroidHttp.newCompatibleTransport;
 
-
 public class MainActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
 
 
@@ -511,10 +510,27 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
      * 캘린더 ID를 가져오기
      */
 
+    private List<CalendarListEntry> getCalendarID(){
+        List<CalendarListEntry> items;
+        String pageToken = null;
+        do {
+            CalendarList calendarList = null;
+            try {
+                calendarList = mService.calendarList().list().setPageToken(pageToken).execute();
+            } catch (UserRecoverableAuthIOException e) {
+                startActivityForResult(e.getIntent(), REQUEST_AUTHORIZATION);
+            }catch (IOException e) {
+                e.printStackTrace();
+            }
+            assert calendarList != null;
+            items = calendarList.getItems();
+            pageToken = calendarList.getNextPageToken();
+        } while (pageToken != null);
+        return items;
+    }
+
+
     private void DebugCalendarID(){
-
-        String id = null;
-
         // Iterate through entries in calendar list
         String pageToken = null;
         do {
@@ -610,7 +626,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             Events events;
             List<Event> items;
 
-            DebugCalendarID();
+            DebugCalendarID(); //이거 없으면 새로운 계정에서 동작이 안함.
+            gVal.items = getCalendarID();
 
             Calendar mCal = Calendar.getInstance();
             Calendar nCal = Calendar.getInstance();
@@ -932,7 +949,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             }
             mDate[0][0].setText(cYear + "년 " + cMonth + "월  일정표");
             //커스텀 공휴일 처리(창립기념일)
-            if(cMonth==9) hyu[1] = true;  if(cMonth==8) hyuNext[1] = true;
+            //if(cMonth==9) hyu[1] = true;  if(cMonth==8) hyuNext[1] = true;
 
             for (int i = preStartDay; i <= preEndDay; i++) {  //이전달
                 row = startRow;
